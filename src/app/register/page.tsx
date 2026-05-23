@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -16,20 +15,24 @@ export default function LoginPage() {
 
     const form = new FormData(e.currentTarget);
 
-    const result = await signIn("credentials", {
-      email: form.get("email"),
-      password: form.get("password"),
-      redirect: false,
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.get("name"),
+        email: form.get("email"),
+        password: form.get("password"),
+      }),
     });
 
+    const data = await res.json();
     setLoading(false);
 
-    if (result?.error) {
-      toast.error("Email atau password salah");
+    if (!res.ok) {
+      toast.error(data.error || "Gagal mendaftar");
     } else {
-      toast.success("Berhasil login!");
-      router.push("/dashboard");
-      router.refresh();
+      toast.success("Berhasil daftar! Silakan login.");
+      router.push("/login");
     }
   }
 
@@ -37,13 +40,27 @@ export default function LoginPage() {
     <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-md items-center justify-center px-4">
       <div className="w-full rounded-xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Masuk ke SinauDevOps</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Daftar di SinauDevOps</h1>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            Lanjutkan perjalanan belajar DevOps-mu
+            Mulai perjalanan DevOps dari nol sampai mahir
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+              Nama
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+              placeholder="Nama kamu"
+            />
+          </div>
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
               Email
@@ -67,8 +84,9 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
+              minLength={6}
               className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
-              placeholder="••••••••"
+              placeholder="Minimal 6 karakter"
             />
           </div>
 
@@ -77,14 +95,14 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-lg bg-primary-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50 transition-colors mt-2"
           >
-            {loading ? "Memproses..." : "Masuk"}
+            {loading ? "Memproses..." : "Daftar"}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-          Belum punya akun?{" "}
-          <Link href="/register" className="text-primary-500 hover:underline font-medium">
-            Daftar di sini
+          Sudah punya akun?{" "}
+          <Link href="/login" className="text-primary-500 hover:underline font-medium">
+            Masuk di sini
           </Link>
         </p>
       </div>

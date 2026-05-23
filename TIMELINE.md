@@ -26,14 +26,34 @@ Dimulai: 23 Mei 2026
 ### Tech Stack yang digunakan:
 - **Frontend:** Next.js 16 (App Router) + React 19 + TypeScript 5
 - **Styling:** Tailwind CSS v4
-- **Database:** MySQL 8.0 + Prisma ORM v7
+- **Database:** MySQL 8.0 + Prisma ORM v6
 - **Auth:** NextAuth.js v5 (Beta)
 - **Dependencies tambahan:** bcryptjs, react-hot-toast
 
 ---
 
 ## Fase 1: Authentication & Database
-**Status:** ⏳ Belum dimulai
+**Status:** ✅ Selesai
+**Tanggal:** 23 Mei 2026
+
+### Yang sudah dikerjakan:
+- [x] Setup NextAuth.js v5 config (`src/auth.ts`) dengan Prisma adapter
+- [x] Credentials provider (email + password) dengan bcryptjs
+- [x] JWT session strategy + session callback (user ID)
+- [x] API route handler (`/api/auth/[...nextauth]`)
+- [x] Protected routes middleware untuk `/dashboard`
+- [x] Halaman Login dengan form email/password + toast notification
+- [x] Halaman Register dengan form name/email/password + validasi
+- [x] API register (`/api/register`) — hash password, cek duplikasi email
+- [x] Header menampilkan status login (avatar + tombol logout)
+- [x] Dashboard page menampilkan data user yang login
+- [x] `Toaster` (react-hot-toast) di root layout
+- [x] Downgrade Prisma 7 → 6 (lebih stabil, tanpa adapter complexity)
+
+### Notes:
+- OAuth (Google/GitHub) belum di-setup, bisa ditambahkan nanti
+- `learning-path` tidak diproteksi (bisa diakses tanpa login)
+- Password di-hash dengan bcrypt 12 rounds
 
 ---
 
