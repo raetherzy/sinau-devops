@@ -129,7 +129,28 @@ Dimulai: 23 Mei 2026
 ---
 
 ## Fase 5: Progress Tracking & Polish
-**Status:** ⏳ Belum dimulai
+**Status:** ✅ Selesai
+**Tanggal:** 25 Mei 2026
+
+### Yang sudah dikerjakan:
+- [x] API Progress (`GET /api/progress`) — return completed sessions, quiz results, user progress
+- [x] API Complete Session (`POST /api/progress/complete-session`) — upsert session completion
+- [x] API Save Quiz (`POST /api/progress/save-quiz`) — upsert quiz result + completion
+- [x] Komponen CompleteButton — "Tandai Selesai" di halaman sesi (hanya untuk user login)
+- [x] Komponen DashboardProgress — stat cards real-time (total, selesai, progress%, avg kuis)
+- [x] Resume "Lanjutkan" — tampilkan sesi terakhir & link langsung untuk melanjutkan
+- [x] Progress bar per fase dengan data real dari database
+- [x] Quiz auto-save — hasil kuis otomatis tersimpan ke database setelah submit
+- [x] SessionProvider wrapper di root layout — `useSession` tersedia di semua komponen
+- [x] Loading skeleton di dashboard saat fetching data
+- [x] Updated Prisma schema — unique constraint di QuizResult
+
+### Cara testing:
+1. Login di `/login`
+2. Buka sesi `/learning-path/1/1` → klik **Tandai Selesai**
+3. Buka kuis `/learning-path/1/1/quiz` → jawab → submit (tersimpan otomatis)
+4. Buka `/dashboard` → lihat progress real dari database
+5. "Terakhir Belajar" muncul dengan tombol **Lanjutkan**
 
 ---
 *Last updated: 23 Mei 2026*

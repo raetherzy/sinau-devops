@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import type { QuizData, QuizQuestion } from "@/data/quiz-data";
 
 interface QuizClientProps {
@@ -11,6 +12,7 @@ interface QuizClientProps {
 }
 
 export default function QuizClient({ quiz, phaseId, sessionId }: QuizClientProps) {
+  const { data: session } = useSession();
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState<Record<string, boolean | "pending">>({});
@@ -107,6 +109,24 @@ export default function QuizClient({ quiz, phaseId, sessionId }: QuizClientProps
 
     setResults(newResults);
     setScore(correct);
+
+    if (session?.user) {
+      try {
+        await fetch("/api/progress/save-quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phaseId,
+            sessionId,
+            score: correct,
+            totalQuestions: total,
+            answers,
+          }),
+        });
+      } catch {
+        // ignore save error
+      }
+    }
   }
 
   function getScoreColor(s: number, total: number) {

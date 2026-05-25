@@ -5,6 +5,7 @@ import { getQuiz } from "@/data/quiz-data";
 import { notFound } from "next/navigation";
 import ContentRenderer from "@/components/ui/ContentRenderer";
 import AIChat from "@/components/ai/AIChat";
+import CompleteButton from "@/components/dashboard/CompleteButton";
 
 export default async function SessionPage({
   params,
@@ -73,6 +74,8 @@ export default async function SessionPage({
           </div>
         )}
       </div>
+
+      <CompleteButton phaseId={phase.id} sessionId={session.sessionId} />
 
       {quiz && (
         <div className="mt-6 flex justify-center">

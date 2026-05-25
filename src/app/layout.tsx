@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "react-hot-toast";
+import { SessionProvider } from "@/components/layout/SessionProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
@@ -46,9 +47,11 @@ export default function RootLayout({
         `}
       </Script>
       <body className="flex min-h-screen flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 antialiased">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SessionProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </SessionProvider>
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       </body>
     </html>
