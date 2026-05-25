@@ -237,6 +237,119 @@ const sessionContents: Record<string, SessionContent> = {
       "Kuis bisa diulang, yang penting kamu paham materinya!",
     ],
   },
+  "2-1": {
+    intro: "Wah, selamat! Kamu udah masuk Fase 2! 🎉 Di sesi pertama ini kita akan naikin skill Linux kamu ke level berikutnya. Process management, systemd, cron job, dan log files — ini adalah tools yang kamu pakai tiap hari sebagai DevOps engineer. Siap?",
+    sections: [
+      {
+        heading: "Process Management — Siapa yang Lagi Jalan?",
+        body: "Setiap aplikasi yang berjalan di Linux itu adalah sebuah 'process'. Tugas DevOps engineer: tahu cara melihat, mengontrol, dan mematikan process yang bandel.\n\nCommand wajib:\n- ps aux — lihat semua process yang lagi jalan\n- top — monitoring process real-time (interaktif)\n- htop — versi lebih cantik dari top (install dulu: sudo apt install htop)\n- kill <PID> — matikan process berdasarkan ID\n- kill -9 <PID> — paksa matikan (SIGKILL, nggak bisa ditolak)\n- pkill <nama> — matikan process berdasarkan nama\n\nPrioritas process:\n- nice -n <nilai> command — jalankan process dengan prioritas tertentu (-20 paling tinggi, 19 paling rendah)\n- renice — ubah prioritas process yang sudah berjalan",
+        codeExample: "# Process Management\nps aux                    # lihat semua process\nps aux | grep nginx       # cari process nginx\ntop                       # monitoring real-time (q untuk keluar)\nkill 1234                 # matikan process PID 1234\nkill -9 1234              # paksa matikan\npkill -f \"node app.js\"    # matikan berdasarkan nama\n\n# Background & foreground\nsleep 300 &               # jalanin di background\njobs                      # lihat job di background\nfg %1                     # bawa job #1 ke foreground\nCtrl+Z                    # pause process, lalu:\nbg %1                     # lanjutin di background",
+        tips: "Jangan asal kill -9! Itu seperti nge-tackle orang — langsung mati tanpa sempat beres-beres. Coba kill biasa dulu (SIGTERM), kasih process kesempatan untuk cleanup.",
+      },
+      {
+        heading: "systemd — Bos Besar Linux Modern",
+        body: "systemd adalah init system yang mengatur booting dan service di Linux modern. Hampir semua distro besar (Ubuntu, Debian, CentOS, RHEL) pakai systemd.\n\nKonsep penting:\n- Unit — satu service/mount/timer (file konfigurasi .service)\n- systemctl — command untuk ngatur service\n- journalctl — command untuk lihat log service\n\nCommand wajib:\n- systemctl status nginx — cek status service\n- systemctl start/stop/restart nginx — kontrol service\n- systemctl enable nginx — auto-start saat boot\n- systemctl disable nginx — jangan auto-start\n- systemctl list-units — lihat semua unit aktif\n- journalctl -u nginx -f — lihat log nginx real-time",
+        codeExample: "# systemd commands\nsystemctl status nginx          # cek status\nsystemctl restart nginx         # restart service\nsystemctl enable --now nginx    # enable + start langsung\nsystemctl list-units --failed   # cek service yang gagal\n\n# Buat service custom\nsudo nano /etc/systemd/system/myapp.service\n# Isi:\n# [Unit]\n# Description=My App\n# After=network.target\n# [Service]\n# ExecStart=/usr/bin/node /app/server.js\n# Restart=always\n# [Install]\n# WantedBy=multi-user.target\n\nsudo systemctl daemon-reload\nsudo systemctl enable --now myapp",
+        tips: "systemd udah jadi standar. Kalau kamu ngeliat service pakai sysvinit (/etc/init.d/), itu legacy. Pelajari systemd — ini skill wajib DevOps engineer.",
+      },
+      {
+        heading: "Cron Job — Asisten Pribadi yang Nggak Pernah Tidur",
+        body: "Cron adalah job scheduler di Linux. Dia bisa ngejalanin script/command otomatis sesuai jadwal yang kamu tentuin. Contoh penggunaan:\n- Backup database tiap jam 2 pagi\n- Hapus file temporary tiap minggu\n- Jalankan monitoring script tiap 5 menit\n\nFormat crontab:\n* * * * * command\n│ │ │ │ │\n│ │ │ │ └── hari (0-7, 0=Minggu)\n│ │ │ └──── bulan (1-12)\n│ │ └────── tanggal (1-31)\n│ └──────── jam (0-23)\n└────────── menit (0-59)\n\nContoh:\n0 2 * * * /scripts/backup.sh — tiap jam 2 pagi\n*/5 * * * * /scripts/monitor.sh — tiap 5 menit",
+        codeExample: "# Cron management\ncrontab -l                # lihat cron jobs\ncrontab -e                # edit cron jobs\n\n# Contoh entry cron:\n# Backup database tiap jam 2 pagi\n0 2 * * * /home/rayhan/scripts/backup-db.sh\n\n# Bersihin /tmp tiap minggu\n0 3 * * 0 rm -rf /tmp/*\n\n# Cek cron log\njournalctl -u cron -f     # real-time cron log\ngrep CRON /var/log/syslog # cari cron di syslog",
+        tips: "Cron nggak punya PATH yang sama kayak shell interaktif kamu. Kalau script cron gagal, coba kasih full path ke command-nya. Misal: /usr/bin/mysqldump bukan cuma mysqldump.",
+      },
+    ],
+    summary: [
+      "ps, top, htop, kill — tools untuk manage process di Linux",
+      "systemd adalah init system modern — systemctl untuk kontrol service",
+      "Cron job: scheduler otomatis — format: menit jam tgl bulan hari command",
+      "journalctl untuk baca log service dan cron",
+    ],
+  },
+  "2-2": {
+    intro: "Kalau Linux itu rumahmu sebagai DevOps engineer, Bash scripting adalah bahasa ibumu. Setiap tugas repetitif sebaiknya kamu tulis dalam script, bukan diketik manual tiap hari. Di sesi ini kita belajar variabel, kondisi, loop, dan error handling.",
+    sections: [
+      {
+        heading: "Variabel — Simpan Data, Pakai Nanti",
+        body: "Variabel di Bash itu simpel: nggak perlu deklarasi tipe data, langsung assign aja.\n\nAturan:\n- NAMA=value (tanpa spasi di sekitar =)\n- Pakai $NAMA untuk akses nilainya\n- Pakai \"$NAMA\" kalau valuenya mungkin ada spasi\n- Variabel environment ditulis UPPERCASE (konvensi)\n\nJenis variabel:\n- Local: cuma ada di dalam script\n- Environment: bisa diakses child process (export)\n- Special: $1, $2, $@, $#, $?",
+        codeExample: "#!/bin/bash\n# Variabel\nAPP_NAME=\"SinauDevOps\"\nPORT=3000\nUSER=$(whoami)\nDATE=$(date +%Y-%m-%d)\n\necho \"App: $APP_NAME\"\necho \"Port: $PORT\"\necho \"User: $USER\"\necho \"Date: $DATE\"\n\n# Special variables\necho \"Script name: $0\"\necho \"Args: $@\"\necho \"Arg count: $#\"\necho \"Exit code last cmd: $?\"",
+        tips: "Selalu quote variabel yang mungkin ada spasi: \"$NAMA\". Tanpa quote, variabel yang isinya 'Hello World' akan dianggap 2 argumen terpisah.",
+      },
+      {
+        heading: "Kondisi — Kalau Begini, Lakukan Itu",
+        body: "Bash punya conditional statements seperti bahasa pemrograman lain, tapi syntax-nya agak unik:\n\nif [ kondisi ]; then ... fi\n\nOperator perbandingan:\n- String: = (sama), != (beda), -z (kosong), -n (tidak kosong)\n- Number: -eq (==), -ne (!=), -gt (>), -lt (<), -ge (>=), -le (<=)\n- File: -f (ada & regular file), -d (ada & direktori), -x (executable)\n\nLogical: && (AND), || (OR)",
+        codeExample: "#!/bin/bash\nFILE=\"app.log\"\n\n# Cek file exists\nif [ -f \"$FILE\" ]; then\n  echo \"$FILE exists\"\n  if [ -r \"$FILE\" ]; then\n    echo \"  and is readable\"\n  fi\nelse\n  echo \"$FILE not found, creating...\"\n  touch \"$FILE\"\nfi\n\n# Number comparison\nCOUNT=$(wc -l < \"$FILE\")\nif [ \"$COUNT\" -gt 100 ]; then\n  echo \"Log has more than 100 lines\"\nfi",
+      },
+      {
+        heading: "Loop — Ulangi Tanpa Bosan",
+        body: "Loop di Bash:\n- for ... in ... — iterasi list\n- for ((i=0; i<10; i++)) — C-style\n- while [ kondisi ] — selama kondisi true\n\nUse case umum:\n- Loop semua file di folder\n- Loop baca file baris per baris\n- Retry logic (curl sampai sukses)",
+        codeExample: "#!/bin/bash\n# For loop - list\nfor SERVICE in nginx mysql redis; do\n  systemctl status \"$SERVICE\" > /dev/null 2>&1\n  if [ $? -eq 0 ]; then\n    echo \"✓ $SERVICE is running\"\n  else\n    echo \"✗ $SERVICE is DOWN!\"\n  fi\ndone\n\n# While loop - retry\nMAX_RETRY=5\nRETRY=0\nwhile [ $RETRY -lt $MAX_RETRY ]; do\n  curl -f http://localhost:3000/health && break\n  RETRY=$((RETRY + 1))\n  echo \"Retry $RETRY/$MAX_RETRY...\"\n  sleep 2\ndone",
+        tips: "Hati-hati dengan infinite loop! Pastikan ada exit condition. Kalau kejebak: Ctrl+C untuk stop.",
+      },
+      {
+        heading: "Error Handling — Jangan Cuek Sama Error",
+        body: "Bash script yang baik harus handle error. Jangan biarin script lanjut padahal command sebelumnya gagal.\n\nTeknik:\n- set -e — exit kalau ada command yang gagal\n- set -u — exit kalau ada variabel undefined\n- set -o pipefail — exit kalau command di dalam pipe gagal\n- trap — cleanup kalau script di-interrupt\n\nBest practice: mulai semua script dengan:\nset -euo pipefail",
+        codeExample: "#!/bin/bash\nset -euo pipefail\n\ntrap 'echo \"Script interrupted at line $LINENO\"; exit 1' ERR\n\ncleanup() {\n  echo \"Cleaning up...\"\n  rm -f /tmp/myapp-*.tmp\n}\ntrap cleanup EXIT\n\necho \"Deploying...\"\n\n# Copy files\ncp -r ./dist /var/www/app || {\n  echo \"ERROR: Failed to copy files\"\n  exit 1\n}\n\n# Restart service\nsystemctl restart myapp || {\n  echo \"ERROR: Failed to restart service\"\n  exit 1\n}\n\necho \"Deploy complete! ✅\"",
+      },
+    ],
+    summary: [
+      "Variabel: NAMA=value, akses pakai $NAMA, quote yang ada spasi",
+      "Kondisi: if [ kondisi ]; then ... fi — string, number, file checks",
+      "Loop: for, while — iterasi list, retry logic",
+      "Error handling: set -euo pipefail, trap untuk cleanup",
+    ],
+  },
+  "2-3": {
+    intro: "Install software di Linux itu nggak kayak Windows (double-click .exe). Linux punya package manager yang ngurusin instalasi, update, dan dependensi. Di sesi ini kita belajar apt (Debian/Ubuntu) dan cara troubleshoot package.",
+    sections: [
+      {
+        heading: "apt — Toko Aplikasi Linux",
+        body: "apt (Advanced Package Tool) adalah package manager untuk Debian/Ubuntu. Dia ngurusin download, install, update, dan hapus software.\n\nRepository: server yang menyimpan package. apt download dari repo yang terdaftar di /etc/apt/sources.list.\n\nCommand wajib:\n- apt update — refresh daftar package\n- apt upgrade — upgrade semua package\n- apt install <nama> — install package\n- apt remove <nama> — hapus package\n- apt search <keyword> — cari package\n- apt show <nama> — info detail package",
+        codeExample: "# Package management\nsudo apt update                  # refresh repo\nsudo apt upgrade -y              # upgrade semua\nsudo apt install nginx -y        # install nginx\nsudo apt install htop git curl wget vim -y  # install banyak\n\n# Cari dan info\napt search \"json parser\"         # cari package\napt show jq                      # info package\n\n# Bersihin\nsudo apt autoremove -y           # hapus dependensi nggak kepake\nsudo apt clean                   # bersihin cache",
+      },
+      {
+        heading: "Snap & Alternative Package Managers",
+        body: "Selain apt, ada package manager lain:\n\nsnap — dari Canonical (pembuat Ubuntu). Kelebihan: isolated, auto-update. Kekurangan: lebih gede, lebih lambat.\n\nContoh:\nsnap install --classic certbot\n\nyum/dnf — untuk RHEL/CentOS/Fedora. Syntax-nya mirip apt.\n\nManual install: kadang kamu perlu install dari source atau binary:\n- Download tar.gz, extract, pindahin binary ke /usr/local/bin\n- Atau clone dari git, compile, install",
+        codeExample: "# Snap\nsnap list                        # lihat snap terinstall\nsudo snap install --classic certbot\n\n# Manual install (contoh: Go)\nwget https://go.dev/dl/go1.22.linux-amd64.tar.gz\nsudo tar -C /usr/local -xzf go1.22.linux-amd64.tar.gz\nexport PATH=$PATH:/usr/local/go/bin\n\n# Verify\ngo version",
+        tips: "Prioritas: apt dulu, snap kalau nggak ada di apt, manual install sebagai last resort. Manual install bikin maintenance susah — nggak ada auto-update.",
+      },
+    ],
+    summary: [
+      "apt: update, upgrade, install, remove, search",
+      "snap: untuk package yang nggak ada di apt",
+      "Manual install: download, extract, pindahin binary",
+      "apt autoremove + clean untuk bersih-bersih",
+    ],
+  },
+  "2-4": {
+    intro: "SSH (Secure Shell) adalah pintu masuk kamu ke server remote. Sebagai DevOps engineer, kamu akan SSH ke server puluhan kali sehari. Di sesi ini kita belajar SSH key-based auth, SCP, rsync, dan tunneling.",
+    sections: [
+      {
+        heading: "SSH Key-based Auth — Lebih Aman dari Password",
+        body: "Password SSH itu bisa di-brute-force. Solusinya: SSH key. Kamu generate sepasang key (public + private), upload public key ke server, dan login tanpa password.\n\nKenapa lebih aman?\n1. Private key nggak pernah dikirim ke server\n2. Bisa di-passphrase protect\n3. Nggak bisa di-brute-force (key jauh lebih panjang dari password)\n\nCara setup:\n1. ssh-keygen -t ed25519 -C \"email@contoh.com\" (di laptop)\n2. ssh-copy-id user@server (upload public key)\n3. ssh user@server (login tanpa password!)",
+        codeExample: "# Generate SSH key\nssh-keygen -t ed25519 -C \"rayhan@sinau-devops\"\n# Output: ~/.ssh/id_ed25519 (private) dan ~/.ssh/id_ed25519.pub (public)\n\n# Copy public key ke server\nssh-copy-id root@62.146.237.6\n# Masukkan password sekali, seterusnya tanpa password\n\n# SSH config (biar gampang)\nnano ~/.ssh/config\n# Isi:\n# Host myserver\n#   HostName 62.146.237.6\n#   User root\n#   Port 22\n#   IdentityFile ~/.ssh/id_ed25519\n\n# Sekarang tinggal:\nssh myserver",
+        tips: "ED25519 lebih modern dan aman dari RSA. Kalau server lama belum support, fallback ke RSA 4096: ssh-keygen -t rsa -b 4096",
+      },
+      {
+        heading: "SCP & rsync — Kirim File ke Server",
+        body: "Kadang kamu perlu kirim file dari laptop ke server (atau sebaliknya).\n\nSCP (Secure Copy):\n- scp file.txt user@server:/path/ — upload\n- scp user@server:/path/file.txt . — download\n\nrsync — lebih canggih dari SCP:\n- Cuma kirim file yang berubah (delta transfer)\n- Bisa resume kalau putus\n- Bisa exclude file tertentu\n- Paling cocok untuk deployment",
+        codeExample: "# SCP\nscp app.tar.gz root@server:/tmp/       # upload\nscp root@server:/var/log/app.log ./    # download\n\n# rsync - deployment\nrsync -avz --delete ./dist/ root@server:/var/www/app/\n# -a: archive mode (preserve permission, etc)\n# -v: verbose\n# -z: compress\n# --delete: hapus file di server yang udah nggak ada di lokal\n\n# rsync dengan exclude\nrsync -avz --exclude 'node_modules' --exclude '.env' ./ root@server:/app/",
+        tips: "rsync + --delete adalah combo favorit untuk deployment: server bakal persis sama kayak local. Tapi hati-hati — jangan sampai --delete hapus production data!",
+      },
+      {
+        heading: "SSH Tunneling — Jalan Rahasia Lewat SSH",
+        body: "SSH tunnel bikin koneksi aman ke server, bahkan ke port yang nggak dibuka ke publik (misal database).\n\nJenis tunnel:\n1. Local forwarding — akses port remote di local\n   ssh -L 3306:localhost:3306 user@server\n   Sekarang localhost:3306 di laptop → MySQL di server\n\n2. Remote forwarding — expose port local ke server\n   ssh -R 8080:localhost:3000 user@server\n   Sekarang server:8080 → localhost:3000 di laptop\n\n3. Dynamic forwarding (SOCKS proxy)\n   ssh -D 1080 user@server\n   Browser pakai SOCKS proxy di localhost:1080",
+        codeExample: "# Local forward: akses MySQL server dari laptop\nssh -L 3307:localhost:3306 root@server\n# Sekarang mysql -h 127.0.0.1 -P 3307 -u root -p\n# Konek ke MySQL server lewat SSH tunnel!\n\n# Remote forward: expose dev server ke publik\nssh -R 9000:localhost:3000 root@server\n# Sekarang http://server:9000 → localhost:3000 di laptop\n\n# Jump host: SSH ke server lewat server lain\nssh -J bastion.example.com root@internal-server",
+        tips: "SSH tunnel adalah skill yang bikin kamu kayak hacker di film — tapi legal dan sangat berguna! Sering dipakai untuk akses database production yang nggak exposed ke internet.",
+      },
+    ],
+    summary: [
+      "SSH key: lebih aman dari password, generate dengan ssh-keygen -t ed25519",
+      "ssh-copy-id untuk upload public key, ssh config untuk shortcut",
+      "SCP & rsync untuk transfer file, rsync lebih canggih (delta, resume)",
+      "SSH tunneling: local (-L), remote (-R), dynamic (-D) — akses port tertutup",
+    ],
+  },
 };
 
 export function getSessionContent(
