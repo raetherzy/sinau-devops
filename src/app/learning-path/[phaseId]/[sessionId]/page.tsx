@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSession, phases } from "@/data/learning-path";
 import { getSessionContent } from "@/data/session-content";
+import { getQuiz } from "@/data/quiz-data";
 import { notFound } from "next/navigation";
 import ContentRenderer from "@/components/ui/ContentRenderer";
 import AIChat from "@/components/ai/AIChat";
@@ -22,6 +23,7 @@ export default async function SessionPage({
   }
 
   const content = getSessionContent(pid, sid);
+  const quiz = getQuiz(pid, sid);
   const currentIdx = phase.sessions.findIndex((s) => s.sessionId === sid);
   const prevSession = currentIdx > 0 ? phase.sessions[currentIdx - 1] : null;
   const nextSession = currentIdx < phase.sessions.length - 1 ? phase.sessions[currentIdx + 1] : null;
@@ -71,6 +73,17 @@ export default async function SessionPage({
           </div>
         )}
       </div>
+
+      {quiz && (
+        <div className="mt-6 flex justify-center">
+          <Link
+            href={`/learning-path/${phase.id}/${session.sessionId}/quiz`}
+            className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-amber-500/25 hover:bg-amber-600 transition-colors"
+          >
+            📝 Kerjakan Kuis
+          </Link>
+        </div>
+      )}
 
       <div className="mt-10 flex items-center justify-between border-t border-zinc-200 pt-6 dark:border-zinc-800">
         {prevSession ? (

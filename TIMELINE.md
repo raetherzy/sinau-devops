@@ -96,14 +96,35 @@ Dimulai: 23 Mei 2026
 - [x] Update halaman Sesi — konten asli + AI Chat panel + navigasi lanjut ke Fase berikutnya
 
 ### Notes:
-- AI Chat membutuhkan `ANTHROPIC_API_KEY` di `.env` untuk berfungsi
+- AI Chat + Quiz grading menggunakan Groq API (`GROQ_API_KEY`)
 - Konten Fase 2-7 masih placeholder (akan diisi bertahap)
-- Model: claude-sonnet-4-20250514
+- Model: llama-4-maverick-17b-128e-instruct (via Groq)
 
 ---
 
 ## Fase 4: Quiz System
-**Status:** ⏳ Belum dimulai
+**Status:** ✅ Selesai
+**Tanggal:** 25 Mei 2026
+
+### Yang sudah dikerjakan:
+- [x] Data kuis untuk Fase 1 (`src/data/quiz-data.ts`) — 4 sesi dengan berbagai tipe soal
+  - Sesi 1.1 (6 soal), Sesi 1.3 (6 soal), Sesi 1.5 (5 soal), Sesi 1.7 (6 soal)
+- [x] 5 tipe soal: multiple choice, true/false, essay, fill-in-blank, troubleshooting
+- [x] Halaman kuis (`/learning-path/[phaseId]/[sessionId]/quiz`)
+- [x] Komponen QuizClient — interaktif dengan disabled state, highlight benar/salah, penjelasan
+- [x] Grading otomatis untuk MCQ, T/F, fill-blank, troubleshooting
+- [x] Grading esai oleh AI (Groq) — dengan feedback Bahasa Indonesia supportif
+- [x] Sistem penilaian: < 60% review ulang, 60-80% lanjut dengan catatan, > 80% lulus
+- [x] Tampilan hasil dengan: skor, persentase, emoji, feedback, tombol "Coba Lagi" & "Kembali"
+- [x] Tombol "Kerjakan Kuis" di halaman sesi (muncul hanya jika kuis tersedia)
+- [x] API route `/api/quiz/grade-essay` — JSON response grading dari AI
+
+### Cara testing:
+1. Buka sesi yang punya kuis, misal `http://localhost:3000/learning-path/1/1`
+2. Klik tombol **📝 Kerjakan Kuis**
+3. Jawab semua soal, klik **Kumpulkan Jawaban**
+4. Lihat hasil, jawaban benar (hijau) / salah (merah) dengan penjelasan
+5. Esai dinilai AI (butuh `GROQ_API_KEY` di `.env`)
 
 ---
 
