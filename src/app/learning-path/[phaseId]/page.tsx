@@ -50,7 +50,7 @@ export default async function PhaseDetailPage({
           {phase.sessions.map((session, idx) => (
             <Link
               key={session.sessionId}
-              href={`/learning-path/fase-${phase.id}/sesi-${session.sessionId}`}
+              href={`/learning-path/${phase.id}/${session.sessionId}`}
               className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition-colors hover:border-primary-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-primary-700 dark:hover:bg-zinc-800"
             >
               <span

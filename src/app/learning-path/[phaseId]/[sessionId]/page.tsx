@@ -1,16 +1,9 @@
 import Link from "next/link";
-import { getSession } from "@/data/learning-path";
-import { phases } from "@/data/learning-path";
+import { getSession, phases } from "@/data/learning-path";
+import { getSessionContent } from "@/data/session-content";
 import { notFound } from "next/navigation";
-
-export async function generateStaticParams() {
-  return phases.flatMap((phase) =>
-    phase.sessions.map((session) => ({
-      phaseId: String(phase.id),
-      sessionId: String(session.sessionId),
-    }))
-  );
-}
+import ContentRenderer from "@/components/ui/ContentRenderer";
+import AIChat from "@/components/ai/AIChat";
 
 export default async function SessionPage({
   params,
@@ -18,14 +11,18 @@ export default async function SessionPage({
   params: Promise<{ phaseId: string; sessionId: string }>;
 }) {
   const { phaseId, sessionId } = await params;
-  const phase = phases.find((p) => p.id === Number(phaseId));
-  const session = getSession(Number(phaseId), Number(sessionId));
+  const pid = Number(phaseId);
+  const sid = Number(sessionId);
+
+  const phase = phases.find((p) => p.id === pid);
+  const session = getSession(pid, sid);
 
   if (!phase || !session) {
     notFound();
   }
 
-  const currentIdx = phase.sessions.findIndex((s) => s.sessionId === Number(sessionId));
+  const content = getSessionContent(pid, sid);
+  const currentIdx = phase.sessions.findIndex((s) => s.sessionId === sid);
   const prevSession = currentIdx > 0 ? phase.sessions[currentIdx - 1] : null;
   const nextSession = currentIdx < phase.sessions.length - 1 ? phase.sessions[currentIdx + 1] : null;
 
@@ -37,7 +34,7 @@ export default async function SessionPage({
         </Link>
         <span>/</span>
         <Link
-          href={`/learning-path/fase-${phase.id}`}
+          href={`/learning-path/${phase.id}`}
           className="hover:text-zinc-900 dark:hover:text-zinc-100"
         >
           Fase {phase.id}: {phase.title}
@@ -48,31 +45,38 @@ export default async function SessionPage({
         </span>
       </nav>
 
-      <div className="mb-2">
+      <div className="mb-2 flex items-center gap-2">
         <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
           Fase {phase.id}
         </span>
-        <span className="ml-2 text-sm text-zinc-400">{session.duration}</span>
+        <span className="text-sm text-zinc-400">{session.duration}</span>
       </div>
 
       <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
-        {session.title}
+        Sesi {phase.id}.{session.sessionId}: {session.title}
       </h1>
       <p className="mt-3 text-lg text-zinc-500 dark:text-zinc-400">
         {session.description}
       </p>
 
-      <div className="mt-10 rounded-xl border border-dashed border-zinc-300 p-8 text-center dark:border-zinc-700">
-        <p className="text-zinc-400 dark:text-zinc-500">
-          📝 Konten pembelajaran akan hadir di fase berikutnya
-        </p>
+      <div className="mt-10">
+        {content ? (
+          <ContentRenderer content={content} />
+        ) : (
+          <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
+            <p className="text-4xl">📝</p>
+            <p className="mt-4 text-zinc-500 dark:text-zinc-400">
+              Konten untuk sesi ini sedang disiapkan
+            </p>
+          </div>
+        )}
       </div>
 
-      <div className="mt-8 flex items-center justify-between border-t border-zinc-200 pt-6 dark:border-zinc-800">
+      <div className="mt-10 flex items-center justify-between border-t border-zinc-200 pt-6 dark:border-zinc-800">
         {prevSession ? (
           <Link
-            href={`/learning-path/fase-${phase.id}/sesi-${prevSession.sessionId}`}
-            className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            href={`/learning-path/${phase.id}/${prevSession.sessionId}`}
+            className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             ← {prevSession.title}
           </Link>
@@ -81,13 +85,22 @@ export default async function SessionPage({
         )}
         {nextSession ? (
           <Link
-            href={`/learning-path/fase-${phase.id}/sesi-${nextSession.sessionId}`}
-            className="flex items-center gap-2 text-sm font-medium text-primary-500 hover:text-primary-600"
+            href={`/learning-path/${phase.id}/${nextSession.sessionId}`}
+            className="text-sm font-medium text-primary-500 hover:text-primary-600"
           >
             {nextSession.title} →
           </Link>
         ) : (
-          <div />
+          phase.id < 7 ? (
+            <Link
+              href={`/learning-path/${phase.id + 1}`}
+              className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600"
+            >
+              Lanjut ke Fase {phase.id + 1} →
+            </Link>
+          ) : (
+            <div />
+          )
         )}
       </div>
 
@@ -99,9 +112,9 @@ export default async function SessionPage({
           {phase.sessions.map((s) => (
             <Link
               key={s.sessionId}
-              href={`/learning-path/fase-${phase.id}/sesi-${s.sessionId}`}
+              href={`/learning-path/${phase.id}/${s.sessionId}`}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                s.sessionId === Number(sessionId)
+                s.sessionId === sid
                   ? "bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300"
                   : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
               }`}
@@ -115,6 +128,8 @@ export default async function SessionPage({
           ))}
         </div>
       </div>
+
+      <AIChat sessionTitle={session.title} sessionDescription={session.description} />
     </div>
   );
 }

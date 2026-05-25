@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
-
-function getInitialDark(): boolean {
-  if (typeof window === "undefined") return false;
-  const stored = localStorage.getItem("theme");
-  if (stored === "dark") return true;
-  if (stored === "light") return false;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
+import { useState, useEffect } from "react";
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(getInitialDark);
+  const [mounted, setMounted] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const isDark =
+      stored === "dark" ||
+      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setDark(isDark);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.add("light");
+    }
+    setMounted(true);
+  }, []);
 
   const toggle = () => {
     const next = !dark;
@@ -38,7 +45,7 @@ export default function ThemeToggle() {
           dark ? "translate-x-7" : "translate-x-1"
         }`}
       >
-        {dark ? "🌙" : "☀️"}
+        {mounted ? (dark ? "🌙" : "☀️") : "☀️"}
       </span>
     </button>
   );

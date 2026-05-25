@@ -75,7 +75,30 @@ Dimulai: 23 Mei 2026
 ---
 
 ## Fase 3: Session Content & AI Tutor
-**Status:** ⏳ Belum dimulai
+**Status:** ✅ Selesai
+**Tanggal:** 25 Mei 2026
+
+### Yang sudah dikerjakan:
+- [x] Install Anthropic SDK (`@anthropic-ai/sdk`)
+- [x] AI system prompt sesuai panduan PRD bab 10 — persona "Sinau", Bahasa Indonesia santai, analogi
+- [x] AI Chat API route (`/api/chat`) — streaming response dari Claude Sonnet 4
+- [x] Komponen AIChat — floating chat panel, streaming text, dark mode, tombol toggle
+- [x] Komponen ContentRenderer — render konten dengan: hook intro, sections, code blocks (copy), tips, ringkasan
+- [x] Konten pembelajaran Fase 1 (`src/data/session-content.ts`) — 7 sesi lengkap:
+  - Sesi 1.1: Apa itu DevOps?
+  - Sesi 1.2: DevOps vs Traditional IT
+  - Sesi 1.3: DevOps Culture (CALMS)
+  - Sesi 1.4: Software Development Lifecycle (SDLC)
+  - Sesi 1.5: Pengenalan Linux untuk DevOps
+  - Sesi 1.6: Dasar-dasar Networking
+  - Sesi 1.7: Version Control dengan Git
+  - Sesi 1.8: Kuis & Recap Fase 1
+- [x] Update halaman Sesi — konten asli + AI Chat panel + navigasi lanjut ke Fase berikutnya
+
+### Notes:
+- AI Chat membutuhkan `ANTHROPIC_API_KEY` di `.env` untuk berfungsi
+- Konten Fase 2-7 masih placeholder (akan diisi bertahap)
+- Model: claude-sonnet-4-20250514
 
 ---
 

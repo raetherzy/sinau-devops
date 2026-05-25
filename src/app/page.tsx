@@ -185,7 +185,7 @@ export default function Home() {
             {phases.map((phase) => (
               <Link
                 key={phase.id}
-                href={`/learning-path/fase-${phase.id}`}
+                href={`/learning-path/${phase.id}`}
                 className="card group overflow-hidden dark:bg-zinc-900 dark:border-zinc-800"
               >
                 <div className={`h-2 bg-gradient-to-r ${phase.color}`} />

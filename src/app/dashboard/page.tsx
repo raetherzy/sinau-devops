@@ -53,7 +53,7 @@ export default async function DashboardPage() {
               <p className="mt-1 text-xs text-zinc-400">0/{phase.totalSessions} sesi</p>
             </div>
             <Link
-              href={`/learning-path/fase-${phase.id}`}
+              href={`/learning-path/${phase.id}`}
               className="shrink-0 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               Detail

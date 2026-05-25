@@ -46,7 +46,7 @@ export default function LearningPathPage() {
                       {phase.sessions.map((session) => (
                         <Link
                           key={session.sessionId}
-                          href={`/learning-path/fase-${phase.id}/sesi-${session.sessionId}`}
+                          href={`/learning-path/${phase.id}/${session.sessionId}`}
                           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800"
                         >
                           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-zinc-200 text-xs text-zinc-400 dark:border-zinc-700 dark:text-zinc-500">
